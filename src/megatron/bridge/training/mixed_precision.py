@@ -41,7 +41,9 @@ class MixedPrecisionConfig:
     grad_reduce_in_fp32: bool = True
     # fp8 related
     fp8: Optional[str] = None
-    fp8_recipe: str = "tensorwise"  # "tensorwise", "delayed", "mxfp8" (for Blackwell only), "blockwise" (for Hopper only)
+    fp8_recipe: str = (
+        "tensorwise"  # "tensorwise", "delayed", "mxfp8" (for Blackwell only), "blockwise" (for Hopper only)
+    )
     first_last_layers_bf16: bool = False
     fp8_margin: int = 0
     fp8_amax_history_len: int = 1
