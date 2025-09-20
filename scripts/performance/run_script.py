@@ -21,6 +21,8 @@ from omegaconf import OmegaConf
 from utils.helpers import COMM_OVERLAP_CONFIG_MAP, get_precision_config
 
 from megatron.bridge.recipes.deepseek.deepseek_v3 import pretrain_config as deepseek_v3_pretrain_config
+from megatron.bridge.recipes.kimi.kimi_k2 import pretrain_config as kimi_k2_pretrain_config
+from megatron.bridge.recipes.kimi.kimi_k2_proxy import pretrain_config as kimi_k2_proxy_pretrain_config
 from megatron.bridge.recipes.llama.llama3_8b import pretrain_config as llama3_8b_pretrain_config
 from megatron.bridge.recipes.llama.llama3_70b import pretrain_config as llama3_70b_pretrain_config
 from megatron.bridge.recipes.llama.llama31_405b import pretrain_config as llama31_405b_pretrain_config
@@ -59,6 +61,22 @@ def main():
         from megatron.bridge.training.utils.moe_token_drop import apply_moe_token_drop
 
         recipe.model = apply_moe_token_drop(recipe.model)
+    elif args.model_name == "kimi" and args.model_size == "k2":
+        recipe = kimi_k2_pretrain_config(
+            mock=True,
+            precision_config=precision_config,
+            # NOTE: IMPORTANT: PLEASE SET PP-VP size here to correctly set the pp-vp layout
+            pipeline_parallelism=1,
+            virtual_pipeline_parallelism=None,
+        )
+    elif args.model_name == "kimi_proxy" and args.model_size == "k2":
+        recipe = kimi_k2_proxy_pretrain_config(
+            mock=True,
+            precision_config=precision_config,
+            # NOTE: IMPORTANT: PLEASE SET PP-VP size here to correctly set the pp-vp layout
+            pipeline_parallelism=1,
+            virtual_pipeline_parallelism=None,
+        )
     else:
         raise ValueError(f"Model {args.model_name} {args.model_size} not supported")
 
