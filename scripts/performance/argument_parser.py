@@ -351,7 +351,7 @@ def parse_cli_args():
         "--moe_a2a_overlap",
         type=bool_arg,
         required=False,
-        default=None,
+        default=False,
     )
     parser.add_argument(
         "-ms",
