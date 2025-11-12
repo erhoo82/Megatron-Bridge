@@ -35,6 +35,7 @@ from megatron.bridge.training.config import (
     TokenizerConfig,
     TrainingConfig,
 )
+from megatron.bridge.training.flex_dispatcher_backend import apply_flex_dispatcher_backend
 from megatron.bridge.training.mixed_precision import MixedPrecisionConfig, bf16_mixed
 
 
@@ -85,7 +86,8 @@ class Qwen3NextCommonKwargs(TypedDict, total=False):
     precision_config: MixedPrecisionConfig | str | None
     comm_overlap_config: CommOverlapConfig | None
     # Performance optimization knobs
-    enable_deepep: bool
+    moe_flex_dispatcher_backend: str | None
+    disable_jit_fuser: bool
 
 
 class Qwen3NextFinetuneKwargs(Qwen3NextCommonKwargs, total=False):
@@ -172,7 +174,8 @@ def _qwen3_next_common(
     # Precision recipe
     precision_config: MixedPrecisionConfig | str | None = None,
     comm_overlap_config: CommOverlapConfig | None = None,
-    enable_deepep: bool = False,
+    moe_flex_dispatcher_backend: str | None = None,
+    disable_jit_fuser: bool | None = None,
 ) -> ConfigContainer:
     """
     Create a pre-training configuration for Qwen3-Next models using a given HuggingFace path.
@@ -212,7 +215,8 @@ def _qwen3_next_common(
         lr_decay_iters (int | None): Number of iterations over which to decay the LR.
         precision_config (MixedPrecisionConfig | str | None): Precision configuration for the model.
         comm_overlap_config (CommOverlapConfig | None): Communication overlap configuration.
-        enable_deepep (bool): Whether to enable DEEPEP for MoE.
+        moe_flex_dispatcher_backend (str | None): Token dispatcher type [deepep, hybridep].
+        disable_jit_fuser (bool): Whether to disable the JIT fuser. Necessary for Qwen3-Next to work on Blackwell.
 
     Returns:
         ConfigContainer: Configuration for pre-training.
@@ -243,12 +247,7 @@ def _qwen3_next_common(
     # Performance optimization knobs
     model_cfg.moe_permute_fusion = True
     model_cfg.moe_grouped_gemm = True
-    if enable_deepep:
-        model_cfg.moe_token_dispatcher_type = "flex"
-        # TODO: Remove moe_enable_deepep since it is deprecated
-        model_cfg.moe_enable_deepep = True
-        model_cfg.moe_shared_expert_overlap = False
-        model_cfg.moe_flex_dispatcher_backend = "deepep"
+    apply_flex_dispatcher_backend(model_cfg, moe_flex_dispatcher_backend)
 
     if precision_config is None:
         precision_config = bf16_mixed()
@@ -420,7 +419,8 @@ def _qwen3_next_finetune_common(
     # Precision
     precision_config: MixedPrecisionConfig | str | None = "bf16_mixed",
     comm_overlap_config: CommOverlapConfig | None = None,
-    enable_deepep: bool = False,
+    moe_flex_dispatcher_backend: str | None = None,
+    disable_jit_fuser: bool | None = None,
 ) -> ConfigContainer:
     """Common finetuning configuration for Qwen3-Next model."""
 
@@ -473,12 +473,7 @@ def _qwen3_next_finetune_common(
     # Performance optimization knobs
     model_cfg.moe_permute_fusion = True
     model_cfg.moe_grouped_gemm = True
-    if enable_deepep:
-        model_cfg.moe_token_dispatcher_type = "flex"
-        # TODO: Remove moe_enable_deepep since it is deprecated
-        model_cfg.moe_enable_deepep = True
-        model_cfg.moe_shared_expert_overlap = False
-        model_cfg.moe_flex_dispatcher_backend = "deepep"
+    apply_flex_dispatcher_backend(model_cfg, moe_flex_dispatcher_backend)
 
     opt_cfg, scheduler_cfg = distributed_fused_adam_with_cosine_annealing(
         lr_warmup_iters=lr_warmup_iters,
