@@ -101,10 +101,10 @@ def set_common_perf_overrides(recipe: ConfigContainer) -> None:
     recipe.model.apply_rope_fusion = True
     recipe.model.cross_entropy_fusion_impl = "te"
 
-    # Currentlly, set the number of SMs for HybridEP to 16 if A2A overlap is enabled, otherwise 32
-    # TODO: This needs to be adjusted when HybridEP is improved to use fewer SMs
+    # TODO: This needs to be adjusted when overlapping HybridEP with computation or
+    # the number of SMs for HybridEP is reduced.
     if recipe.model.moe_flex_dispatcher_backend == "hybridep":
-        recipe.model.moe_hybridep_num_sms = 16 if recipe.model.moe_a2a_overlap else 32
+        recipe.model.moe_hybridep_num_sms = 32
 
 
 def set_megatron_fsdp_overrides(recipe: ConfigContainer) -> None:
