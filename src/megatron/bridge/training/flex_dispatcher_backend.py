@@ -57,7 +57,7 @@ def apply_flex_dispatcher_backend(
         ):
             if get_rank_safe() == 0:
                 logger.warning(
-                    "HybridEP is only applicable to GB200 GPUs with NVL72. Skipping HybridEP configuration."
+                    "HybridEP is only applicable to GB200 and GB300 GPUs with NVL72. Skipping HybridEP configuration."
                 )
             return
     else:

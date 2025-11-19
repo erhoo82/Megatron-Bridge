@@ -370,7 +370,9 @@ class PerfEnvPlugin(Plugin):
 
         # Force program order kernel launch for TP, CP overlap
         moe_flex_dispatcher_backend = getattr(workload_base_config, "moe_flex_dispatcher_backend", None)
-        moe_a2a_overlap = getattr(workload_base_config, "moe_a2a_overlap", self.moe_a2a_overlap)
+        moe_a2a_overlap = (
+             self.moe_a2a_overlap if self.moe_a2a_overlap is not None else getattr(workload_base_config, "moe_a2a_overlap", False)
+        )
         self._set_num_cuda_device_max_connections(
             task,
             executor,
