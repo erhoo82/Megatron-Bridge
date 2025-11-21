@@ -259,7 +259,7 @@ class TestValidateDeepEP:
         # Should raise ValueError
         with pytest.raises(
             ValueError,
-            match="DeepEP is only applicable to Ampere, Hopper, and Blackwell \\(only B200 and B300\\) GPUs",
+            match="DeepEP is supported for Ampere, Hopper, and Blackwell \\(only B200 and B300\\) GPUs",
         ):
             validate_flex_dispatcher_backend(config)
 
