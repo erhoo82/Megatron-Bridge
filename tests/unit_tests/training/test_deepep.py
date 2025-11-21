@@ -145,7 +145,7 @@ class TestApplyDeepEP:
         # Verify warning was logged
         mock_logger.warning.assert_called_once()
         assert (
-            "DeepEP is only applicable to Ampere (SM80) and Hopper (SM90) GPUs" in mock_logger.warning.call_args[0][0]
+            "DeepEP is only applicable to Ampere, Hopper, and Blackwell (only B200 and B300) GPUs" in mock_logger.warning.call_args[0][0]
         )
 
         # Verify configs were NOT set
@@ -173,7 +173,7 @@ class TestApplyDeepEP:
         # Verify warning was logged
         mock_logger.warning.assert_called_once()
         assert (
-            "DeepEP is only applicable to Ampere (SM80) and Hopper (SM90) GPUs" in mock_logger.warning.call_args[0][0]
+            "DeepEP is only applicable to Ampere, Hopper, and Blackwell (only B200 and B300) GPUs" in mock_logger.warning.call_args[0][0]
         )
 
         # Verify configs were NOT set
@@ -255,7 +255,7 @@ class TestValidateDeepEP:
         config.moe_token_dispatcher_type = "flex"
 
         # Should raise ValueError
-        with pytest.raises(ValueError, match="DeepEP is supported for Ampere \\(SM80\\) and Hopper \\(SM90\\) GPUs"):
+        with pytest.raises(ValueError, match="DeepEP is only applicable to Ampere, Hopper, and Blackwell \\(only B200 and B300\\) GPUs GPUs"):
             validate_flex_dispatcher_backend(config)
 
         # Verify get_device_properties was called
